@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - NF Móveis</title>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.0/css/all.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="public/css/style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-musgo to-petroleo text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center text-xl">🔧</div>
+                <div>
+                    <h1 class="font-bold text-lg">NF Móveis Planejados</h1>
+                    <p class="text-xs text-white/80">Painel Administrativo</p>
+                </div>
+            </div>
+            <div id="loginInfo" class="hidden">
+                <span class="text-sm mr-4" id="adminNome"></span>
+                <button onclick="logout()" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                </button>
+            </div>
+            <div id="loginButton">
+                <button onclick="showLoginModal()" class="bg-white text-musgo px-6 py-2 rounded-lg font-semibold text-sm hover:bg-gray-100 transition">
+                    <i class="fas fa-lock mr-2"></i>Login Admin
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Tabs -->
+        <div class="bg-white rounded-xl shadow-lg p-4 mb-8">
+            <div class="flex gap-2 overflow-x-auto">
+                <button onclick="showTab('pendentes')" class="tab-btn active px-6 py-3 rounded-lg font-medium text-sm bg-musgo text-white" id="tab-pendentes">
+                    <i class="fas fa-clock mr-2"></i>Pendentes
+                </button>
+                <button onclick="showTab('aprovados')" class="tab-btn px-6 py-3 rounded-lg font-medium text-sm bg-gray-100 hover:bg-gray-200" id="tab-aprovados">
+                    <i class="fas fa-check-circle mr-2"></i>Aprovados
+                </button>
+                <button onclick="showTab('rejeitados')" class="tab-btn px-6 py-3 rounded-lg font-medium text-sm bg-gray-100 hover:bg-gray-200" id="tab-rejeitados">
+                    <i class="fas fa-times-circle mr-2"></i>Rejeitados
+                </button>
+                <button onclick="showTab('ordens')" class="tab-btn px-6 py-3 rounded-lg font-medium text-sm bg-gray-100 hover:bg-gray-200" id="tab-ordens">
+                    <i class="fas fa-clipboard-list mr-2"></i>Ordens de Serviço
+                </button>
+                <button onclick="showTab('nova-os')" class="tab-btn px-6 py-3 rounded-lg font-medium text-sm bg-gray-100 hover:bg-gray-200" id="tab-nova-os">
+                    <i class="fas fa-plus-circle mr-2"></i>Nova OS
+                </button>
+            </div>
+        </div>
+
+        <!-- Login Modal -->
+        <div id="loginModal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+                <h2 class="text-2xl font-bold text-petroleo mb-6">Login Administrativo</h2>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">E-mail</label>
+                    <input type="email" id="loginEmail" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-musgo outline-none">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Senha</label>
+                    <input type="password" id="loginSenha" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-musgo outline-none">
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="doLogin()" class="flex-1 bg-musgo hover:bg-petroleo text-white py-3 rounded-lg font-semibold transition">
+                        Entrar
+                    </button>
+                    <button onclick="hideLoginModal()" class="flex-1 border-2 border-gray-200 text-gray-600 py-3 rounded-lg font-semibold hover:bg-gray-50 transition">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Areas -->
+        <div id="pendentes-content" class="tab-content">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-petroleo mb-6">Montadores Pendentes</h2>
+                <div id="pendentes-list" class="space-y-4">
+                    <div class="text-center text-gray-500 py-8">Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="aprovados-content" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-petroleo mb-6">Montadores Aprovados</h2>
+                <div id="aprovados-list" class="space-y-4">
+                    <div class="text-center text-gray-500 py-8">Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="rejeitados-content" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-petroleo mb-6">Montadores Rejeitados</h2>
+                <div id="rejeitados-list" class="space-y-4">
+                    <div class="text-center text-gray-500 py-8">Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ordens-content" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-petroleo mb-6">Ordens de Serviço</h2>
+                <div id="ordens-list" class="space-y-4">
+                    <div class="text-center text-gray-500 py-8">Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="nova-os-content" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-petroleo mb-6">Criar Nova Ordem de Serviço</h2>
+                <form id="formNovaOS">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Montador</label>
+                            <select id="osMontador" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-musgo outline-none" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo de Projeto</label>
+                            <select id="osTipo" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-musgo outline-none" required>
+                                <option value="simples">Simples</option>
+                                <option value="medio">Médio</option>
+                                <option value="complexo">Complexo</option>
+                                <option value="luxo">Super Luxo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Valor (R$)</label>
+                        <input type="number" id="osValor" step="0.01" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-musgo outline-none" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Endereço da Instalação</label>
+                        <input type="text" id="osEndereco" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-musgo outline-none" required>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Cidade</label>
+                            <input type="text" id="osCidade" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-musgo outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Estado</label>
+                            <input type="text" id="osEstado" value="GO" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-musgo outline-none" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Data de Agendamento</label>
+                        <input type="date" id="osData" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-musgo outline-none" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Observações</label>
+                        <textarea id="osObs" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-musgo outline-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-musgo hover:bg-petroleo text-white py-4 rounded-lg font-semibold transition">
+                        <i class="fas fa-save mr-2"></i>Criar Ordem de Serviço
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3001' 
+            : 'https://seu-backend.railway.app';
+        
+        let token = localStorage.getItem('adminToken');
+
+        // Login functions
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function hideLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        async function doLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const senha = document.getElementById('loginSenha').value;
+
+            try {
+                const res = await fetch(`${API_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, senha })
+                });
+
+                const data = await res.json();
+                console.log('Resposta da API:', data); // ← AGORA FUNCIONA
+
+                if (res.ok) {
+                    token = data.token;
+                    localStorage.setItem('adminToken', token);
+                    localStorage.setItem('adminNome', data.usuario.nome);
+                    hideLoginModal();
+                    updateUIForLoggedIn();
+                    loadData();
+                } else {
+                    alert('Erro no login: ' + data.erro);
+                }
+            } catch (err) {
+                console.error('Erro na requisição:', err);
+                alert('Erro ao conectar ao servidor');
+            }
+        }
+
+        function logout() {
+            token = null;
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminNome');
+            updateUIForLoggedIn();
+        }
+
+        function updateUIForLoggedIn() {
+            if (token) {
+                document.getElementById('loginInfo').classList.remove('hidden');
+                document.getElementById('loginButton').classList.add('hidden');
+                document.getElementById('adminNome').textContent = localStorage.getItem('adminNome');
+            } else {
+                document.getElementById('loginInfo').classList.add('hidden');
+                document.getElementById('loginButton').classList.remove('hidden');
+            }
+        }
+
+        // Tab functions
+    function showTab(tab) {
+    console.log('🔄 showTab chamado com tab:', tab);
+    
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById(tab + '-content').classList.remove('hidden');
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-musgo', 'text-white');
+        btn.classList.add('bg-gray-100', 'hover:bg-gray-200');
+    });
+    document.getElementById('tab-' + tab).classList.add('bg-musgo', 'text-white');
+    
+    if (token) {
+        console.log('✅ Token presente, chamando loadData com tab:', tab);
+        loadData(tab);
+    } else {
+        console.log('❌ Token ausente, não chamando loadData');
+    }
+}
+ async function loadData(tab = 'pendentes') {
+    console.log('🔵 loadData INICIADO');
+    console.log('   📌 Tab recebida:', tab);
+    console.log('   🔑 Token existe?', token ? 'Sim' : 'Não');
+    
+    if (!token) {
+        console.log('❌ Token não encontrado, abortando');
+        return;
+    }
+
+    try {
+        // CORREÇÃO: Mapear o nome da aba para o valor correto no banco
+        let statusBanco = tab;
+        if (tab === 'pendentes') {
+            statusBanco = 'pendente';  // ← AQUI ESTÁ A CORREÇÃO!
+        } else if (tab === 'aprovados') {
+            statusBanco = 'aprovado';
+        } else if (tab === 'rejeitados') {
+            statusBanco = 'rejeitado';
+        }
+        
+        console.log('   🔄 Status convertido:', statusBanco);
+        
+        const url = `${API_URL}/api/admin/montadores?status=${statusBanco}`;
+        console.log('📡 Fetching:', url);
+        
+        const res = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        console.log('📊 Status da resposta:', res.status);
+        
+        const data = await res.json();
+        console.log('📦 Dados recebidos:', data);
+        
+        // Passa a tab original para o renderizador (para mostrar o texto correto)
+        renderMontadores(data, tab);
+        
+    } catch (err) {
+        console.error('❌ Erro ao carregar dados:', err);
+    }
+}
+ function renderMontadores(montadores, status) {
+    console.log('🎨 renderMontadores chamado');
+    console.log('📦 Montadores recebidos:', montadores);
+    console.log('🏷️ Status:', status);
+    console.log('📏 Quantidade:', montadores.length);
+    
+    const container = document.getElementById(status + '-list');
+    console.log('📦 Container:', container);
+    
+    if (!container) {
+        console.error('❌ Container não encontrado para status:', status);
+        return;
+    }
+    
+    if (!montadores || !montadores.length) {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">Nenhum montador encontrado</div>';
+        console.log('ℹ️ Nenhum montador para mostrar');
+        return;
+    }
+
+    console.log('✅ Renderizando', montadores.length, 'montadores');
+    
+    container.innerHTML = montadores.map(m => {
+        console.log('🔄 Renderizando montador:', m.nome);
+        return `
+            <div class="border-2 border-gray-100 rounded-xl p-6 hover:border-musgo/30 transition">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-petroleo">${m.nome}</h3>
+                        <p class="text-sm text-gray-500">${m.email} • ${m.telefone}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold 
+                        ${status === 'pendentes' ? 'bg-yellow-100 text-yellow-700' : 
+                          status === 'aprovados' ? 'bg-green-100 text-green-700' : 
+                          'bg-red-100 text-red-700'}">
+                        ${status}
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <p class="text-xs text-gray-400">CPF</p>
+                        <p class="text-sm font-medium">${m.cpf}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Cidade</p>
+                        <p class="text-sm font-medium">${m.cidade || 'Não informado'}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Experiência</p>
+                        <p class="text-sm font-medium">${m.nivel_experiencia || 'Não informado'}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400">Anos</p>
+                        <p class="text-sm font-medium">${m.anos_exp || 'Não informado'}</p>
+                    </div>
+                </div>
+                ${status === 'pendentes' ? `
+                    <div class="flex gap-3">
+                        <button onclick="aprovarMontador('${m.id}')" 
+                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            <i class="fas fa-check mr-2"></i>Aprovar
+                        </button>
+                        <button onclick="rejeitarMontador('${m.id}')" 
+                            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            <i class="fas fa-times mr-2"></i>Rejeitar
+                        </button>
+                        <button onclick="verDocumentos('${m.id}')" 
+                            class="border-2 border-gray-200 hover:border-musgo px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            <i class="fas fa-file mr-2"></i>Documentos
+                        </button>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+    
+    console.log('✅ Renderização concluída');
+}
+        function renderOrdens(ordens) {
+            const container = document.getElementById('ordens-list');
+            if (!ordens.length) {
+                container.innerHTML = '<div class="text-center text-gray-500 py-8">Nenhuma ordem de serviço encontrada</div>';
+                return;
+            }
+
+            container.innerHTML = ordens.map(o => `
+                <div class="border-2 border-gray-100 rounded-xl p-6 hover:border-musgo/30 transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-lg text-petroleo">OS ${o.numero_os}</h3>
+                            <p class="text-sm text-gray-500">${o.montador_nome}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold 
+                            ${o.status === 'agendada' ? 'bg-blue-100 text-blue-700' : 
+                              o.status === 'em_andamento' ? 'bg-yellow-100 text-yellow-700' : 
+                              o.status === 'concluida' ? 'bg-green-100 text-green-700' : 
+                              'bg-red-100 text-red-700'}">
+                            ${o.status}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-400">Tipo</p>
+                            <p class="text-sm font-medium">${o.tipo_projeto}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Valor</p>
+                            <p class="text-sm font-medium">R$ ${o.valor}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Agendamento</p>
+                            <p class="text-sm font-medium">${o.data_agendamento}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-400">Cidade</p>
+                            <p class="text-sm font-medium">${o.cidade}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadMontadoresAprovados() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/montadores?status=aprovados`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const select = document.getElementById('osMontador');
+                select.innerHTML = '<option value="">Selecione...</option>' + 
+                    data.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
+            } catch (err) {
+                console.error('Erro ao carregar montadores:', err);
+            }
+        }
+
+        async function aprovarMontador(id) {
+            if (!confirm('Confirmar aprovação deste montador?')) return;
+            try {
+                const res = await fetch(`${API_URL}/api/admin/aprovar-montador`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ montador_id: id })
+                });
+                if (res.ok) {
+                    alert('Montador aprovado com sucesso!');
+                    loadData('pendentes');
+                    loadData('aprovados');
+                } else {
+                    const data = await res.json();
+                    alert('Erro: ' + data.erro);
+                }
+            } catch (err) {
+                alert('Erro ao conectar ao servidor');
+            }
+        }
+
+        async function rejeitarMontador(id) {
+            const motivo = prompt('Motivo da rejeição:');
+            if (!motivo) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/admin/rejeitar-montador`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ montador_id: id, motivo })
+                });
+                if (res.ok) {
+                    alert('Montador rejeitado!');
+                    loadData('pendentes');
+                    loadData('rejeitados');
+                } else {
+                    const data = await res.json();
+                    alert('Erro: ' + data.erro);
+                }
+            } catch (err) {
+                alert('Erro ao conectar ao servidor');
+            }
+        }
+
+        function verDocumentos(id) {
+            alert('Abrir visualização de documentos - ID: ' + id);
+        }
+
+        // Form Nova OS
+        document.getElementById('formNovaOS').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!token) return alert('Faça login primeiro');
+
+            const osData = {
+                montador_id: document.getElementById('osMontador').value,
+                tipo_projeto: document.getElementById('osTipo').value,
+                valor: parseFloat(document.getElementById('osValor').value),
+                endereco_instalacao: document.getElementById('osEndereco').value,
+                cidade: document.getElementById('osCidade').value,
+                estado: document.getElementById('osEstado').value,
+                data_agendamento: document.getElementById('osData').value,
+                observacoes: document.getElementById('osObs').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/criar-os`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(osData)
+                });
+
+                if (res.ok) {
+                    alert('Ordem de serviço criada com sucesso!');
+                    showTab('ordens');
+                } else {
+                    const data = await res.json();
+                    alert('Erro: ' + data.erro);
+                }
+            } catch (err) {
+                alert('Erro ao conectar ao servidor');
+            }
+        });
+
+        // Initial load
+        updateUIForLoggedIn();
+        if (token) {
+            loadData('pendentes');
+        }
+    </script>
+</body>
+</html>
