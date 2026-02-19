@@ -21,6 +21,8 @@ dotenv.config();
 const { Pool } = pkg;
 const app = express();
 
+app.set('trust proxy', 1); // Confia no primeiro proxy (Railway)
+
 // Configuração de caminhos para ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -645,5 +647,6 @@ process.on('uncaughtException', (err) => {
   log.erro('Exceção não capturada', { erro: err.message, stack: err.stack });
   process.exit(1);
 });
+
 
 export default app;
