@@ -756,6 +756,13 @@
   <span class="text-xs mt-2 block">Seus dados são protegidos pela LGPD • Dúvidas? WhatsApp: (62) 99999-9999</span>
 </footer>
 <script>
+  // ─── CONFIGURAÇÃO DA API ─────────────────────────────────
+  const API_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:3000' 
+      : 'https://testenf-production.up.railway.app';
+
+  console.log('🌐 API_URL:', API_URL);
+
   // ─── GEOLOCALIZAÇÃO ───────────────────────────────────────
   let userLat = null, userLon = null;
   const locStatus = document.getElementById('locStatus');
@@ -847,7 +854,7 @@
   }
 
   function toggleEspec(element) {
-    if (event) event.preventDefault();
+    if (window.event) window.event.preventDefault();
     
     if (!element) return;
     
@@ -1058,14 +1065,18 @@
         longitude: userLon
     };
 
+    console.log('📦 Enviando dados:', payload);
+
     try {
-      const response = await fetch('http://localhost:3001/api/parceiros', {
+      // ✅ CORREÇÃO: Usando API_URL em vez de localhost fixo
+      const response = await fetch(`${API_URL}/api/parceiros`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
       const data = await response.json();
+      console.log('📦 Resposta do servidor:', data);
 
       if (response.ok) {
         // Sucesso
@@ -1093,7 +1104,7 @@
         }
       }
     } catch (error) {
-      console.error('Erro na requisição:', error);
+      console.error('❌ Erro na requisição:', error);
       alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
       if (btn) {
         btn.disabled = false;
@@ -1116,4 +1127,5 @@
   });
 </script>
 </body>
+
 </html>
