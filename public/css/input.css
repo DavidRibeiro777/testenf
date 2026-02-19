@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Você pode colar aquelas suas animações (@keyframes) aqui também! */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeDown { animation: fadeDown 0.7s ease-out forwards; }
+/* ... outras animações que você tinha no <style> ... */
