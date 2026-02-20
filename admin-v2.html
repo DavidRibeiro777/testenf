@@ -395,24 +395,49 @@ function renderMontadores(montadores, status) {
         }
     }
 
-    function renderOrdens(ordens) {
-        const container = document.getElementById('ordens-list');
-        if (!ordens.length) { container.innerHTML = '<div class="text-center text-gray-400 py-12">Nenhuma OS</div>'; return; }
-        container.innerHTML = ordens.map(o => `
-            <div class="bg-white border-2 border-gray-100 rounded-2xl p-5 mb-4 shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-black text-petroleo">OS #${o.numero_os || o.id.toString().slice(0,8)}</h3>
-                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase tracking-wider">${o.status}</span>
-                </div>
-                <div class="space-y-2 text-sm text-gray-600">
-                    <p><b class="text-gray-800">Montador:</b> ${o.montador_nome || 'Aguardando'}</p>
-                    <p><b class="text-gray-800">Local:</b> ${o.cidade} - ${o.endereco_instalacao}</p>
-                    <p class="font-bold text-musgo">Valor: R$ ${parseFloat(o.valor).toFixed(2)}</p>
-                </div>
-            </div>`).join('');
+function renderOrdens(ordens) {
+    const container = document.getElementById('ordens-list');
+    if (!ordens.length) { 
+        container.innerHTML = '<div class="text-center text-gray-400 py-12 italic border-2 border-dashed rounded-xl">Nenhuma ordem encontrada</div>'; 
+        return; 
     }
 
-    // Envio de Nova OS
+    container.innerHTML = ordens.map(o => {
+        // Cores para os selos de status
+        let statusClass = 'bg-blue-100 text-blue-700'; // Agendada
+        if (o.status === 'pendente') statusClass = 'bg-amber-100 text-amber-700';
+        if (o.status === 'concluída') statusClass = 'bg-green-100 text-green-700';
+
+        return `
+        <div class="bg-white border-2 ${o.status === 'concluída' ? 'border-green-100 bg-green-50/10' : 'border-gray-100'} rounded-2xl p-5 mb-4 shadow-sm transition-all hover:shadow-md">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="font-black text-petroleo">OS #${o.numero_os || o.id.toString().slice(0,8)}</h3>
+                    <p class="text-[10px] text-gray-400 uppercase font-bold mt-1">Criada em: ${new Date(o.criado_em).toLocaleDateString('pt-BR')}</p>
+                </div>
+                <span class="px-3 py-1 ${statusClass} rounded-full text-[10px] font-black uppercase tracking-wider">
+                    ${o.status}
+                </span>
+            </div>
+            
+            <div class="space-y-2 text-sm text-gray-600 mb-5">
+                <p><b class="text-gray-800"><i class="fas fa-user-cog mr-2"></i>Montador:</b> ${o.montador_nome || '<span class="text-amber-600 italic">Nenhum (Pendente)</span>'}</p>
+                <p><b class="text-gray-800"><i class="fas fa-map-marker-alt mr-2"></i>Local:</b> ${o.cidade} - ${o.endereco_instalacao}</p>
+                <p class="font-bold text-musgo text-base">Valor: R$ ${parseFloat(o.valor).toFixed(2)}</p>
+            </div>
+
+            ${o.status !== 'concluída' ? `
+                <button onclick="marcarComoConcluido('${o.id}')" class="w-full bg-musgo hover:bg-petroleo text-white py-3 rounded-xl font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-check-double"></i> CONCLUIR E ARQUIVAR MANUALMENTE
+                </button>
+            ` : `
+                <div class="w-full bg-gray-50 text-gray-400 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border border-dashed border-gray-200">
+                    <i class="fas fa-archive"></i> SERVIÇO FINALIZADO
+                </div>
+            `}
+        </div>`;
+    }).join('');
+}
     document.getElementById('formNovaOS').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btnSalvarOS');
@@ -471,6 +496,32 @@ function renderMontadores(montadores, status) {
         });
         if (res.ok) loadData('pendentes');
     }
+async function marcarComoConcluido(id) {
+    if (!confirm("Confirmar a conclusão deste serviço?")) return;
+
+    try {
+        const res = await fetch(`${API_URL}/api/admin/concluir-os`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ os_id: id }) // O nome da chave deve ser os_id
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert('✅ Serviço concluído com sucesso!');
+            loadData('ordens'); // Atualiza a tela
+        } else {
+            alert('Erro: ' + data.erro);
+        }
+    } catch (err) {
+        console.error('Erro:', err);
+        alert('Erro de conexão com o servidor.');
+    }
+}
 </script>
 
     <style>
