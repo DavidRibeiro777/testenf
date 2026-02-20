@@ -472,6 +472,34 @@ app.get('/api/admin/ordens', autenticar, async (req, res) => {
   } catch (err) { res.status(500).json({ erro: 'Erro ao listar ordens' }); }
 });
 
+// ROTA ÚNICA E DEFINITIVA PARA CONCLUIR OS
+// ROTA ÚNICA E ROBUSTA PARA CONCLUIR OS
+app.post('/api/admin/concluir-os', autenticar, async (req, res) => {
+    try {
+        const { os_id } = req.body;
+        console.log(`Attempting to complete OS ID: ${os_id}`); // Log para debug
+
+        if (!os_id) return res.status(400).json({ erro: 'ID não enviado' });
+
+        // UPDATE no banco de dados
+        const result = await pool.query(
+            "UPDATE ordens_servico SET status = 'concluída' WHERE id = $1 RETURNING *", 
+            [os_id]
+        );
+
+        if (result.rowCount === 0) {
+            console.log("❌ Nenhuma OS encontrada com esse ID no banco.");
+            return res.status(404).json({ erro: 'Ordem de serviço não localizada.' });
+        }
+
+        console.log(`✅ OS #${os_id} finalizada com sucesso.`);
+        res.json({ sucesso: true });
+
+    } catch (err) {
+        console.error("❌ ERRO NO BANCO DE DADOS:", err.message);
+        res.status(500).json({ erro: 'Erro interno ao atualizar no banco: ' + err.message });
+    }
+});
 // ═══════════════════════════════════════════════════════════
 // JOBS DE MANUTENÇÃO (RESTORED)
 // ═══════════════════════════════════════════════════════════
@@ -479,15 +507,33 @@ app.get('/api/admin/ordens', autenticar, async (req, res) => {
 // ═══════════════════════════════════════════════════════════
 // JOB: LIMPEZA TOTAL (DELETA CONVITES NÃO ACEITOS)
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// JOB: LIMPEZA TOTAL (DELETA CONVITES E OS NÃO ACEITAS)
+// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// JOB: LIMPEZA TOTAL (DELETA CONVITES E OS EXPIRADAS)
+// ═══════════════════════════════════════════════════════════
 setInterval(async () => {
-  try {
-    // Muda de UPDATE para DELETE para remover o lixo do banco
-    await pool.query("DELETE FROM convites WHERE status = 'enviado' AND expira_em < NOW()");
-  } catch (err) { 
-    console.error("❌ Erro no Job de limpeza de convites:", err.message); 
-  }
-}, 60000); // Continua rodando a cada 1 minuto
+    try {
+        // 1. Limpa convites que já expiraram o tempo de 20 min
+        await pool.query("DELETE FROM convites WHERE status = 'enviado' AND expira_em < NOW()");
 
+        // 2. Limpa as OS que ninguém aceitou (Pendente há mais de 20 min)
+        // Usamos um cálculo mais robusto de tempo
+        const resOS = await pool.query(`
+            DELETE FROM ordens_servico 
+            WHERE status = 'pendente' 
+            AND criado_em < CURRENT_TIMESTAMP - INTERVAL '20 minutes'
+        `);
+
+        if (resOS.rowCount > 0) {
+            console.log(`🧹 [LIMPEZA] ${resOS.rowCount} ordens antigas foram removidas com sucesso.`);
+        }
+    } catch (err) {
+        // Se este log aparecer no teu terminal, o problema é a falta do CASCADE (Passo 1 acima)
+        console.error("⚠️ Falha na limpeza automática:", err.message);
+    }
+}, 60000); // Verifica a cada minuto
 // MANTENHA O SEGUNDO BLOCO COMO ESTÁ:
 // Ele limpa os tokens de login da memória do servidor para não travar o sistema
 setInterval(() => {
