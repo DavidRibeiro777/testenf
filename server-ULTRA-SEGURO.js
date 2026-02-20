@@ -500,26 +500,25 @@ setInterval(() => {
 // INICIALIZAÇÃO E SHUTDOWN (RESTORED)
 // ═══════════════════════════════════════════════════════════
 
-// ═══════════════════════════════════════════════════════════
-// INICIALIZAÇÃO DO SERVIDOR (CORREÇÃO PARA DEPLOY)
-// ═══════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════
 
-// Pega a porta do ambiente (Railway) ou usa a 3000 (Local)
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Servidor rodando com sucesso!`);
+// Ligamos o servidor apenas UMA VEZ e guardamos na constante 'server'
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Servidor Ultra Seguro v5.1 Iniciado`);
     console.log(`📍 Porta: ${PORT}`);
     console.log(`🏠 Ambiente: ${process.env.NODE_ENV || 'development'}`);
 });
-const server = app.listen(PORT, () => log.info(`🚀 Servidor Ultra Seguro v5.1 Rodando na porta ${PORT}`));
 
+// Tratamento de encerramento seguro (Obrigatório para o Railway não travar processos)
 process.on('SIGTERM', () => {
-  server.close(async () => {
-    await pool.end();
-    log.info('Conexões fechadas. Encerrando.');
-    process.exit(0);
-  });
+    console.log('Stopping server...');
+    server.close(async () => {
+        await pool.end();
+        console.log('Conexões com o banco fechadas. Encerrando.');
+        process.exit(0);
+    });
 });
 
 export default app;
