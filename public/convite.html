@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convite de Serviço - NF Móveis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.0/css/all.css">
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .timer-urgente {
+            animation: pulse 1s infinite;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 min-h-screen flex items-center justify-center p-4 font-['Inter']">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-200">
+        <!-- Cabeçalho com gradiente -->
+        <div class="bg-gradient-to-r from-musgo to-petroleo px-6 py-5 text-white">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                    🔧
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl">NF Móveis Planejados</h1>
+                    <p class="text-xs text-white/80">Convite de Serviço</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="carregando" class="p-8 text-center">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-musgo border-t-transparent"></div>
+            <p class="mt-4 text-gray-600 font-medium">Carregando detalhes do convite...</p>
+        </div>
+
+        <!-- Conteúdo do convite -->
+        <div id="dados" class="hidden p-6">
+            <!-- Timer -->
+            <div class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-xl p-4 mb-6 text-center">
+                <p class="text-sm text-gray-600 mb-1">⏳ Tempo para aceitar</p>
+                <div id="timer" class="text-4xl font-bold text-petroleo font-mono">20:00</div>
+                <p id="timerStatus" class="text-xs text-gray-500 mt-1">O convite expira em 20 minutos</p>
+            </div>
+
+            <!-- Detalhes do serviço -->
+            <div class="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
+                <h2 class="font-semibold text-petroleo mb-3 flex items-center gap-2">
+                    <i class="fas fa-clipboard-list text-musgo"></i>
+                    Detalhes do Serviço
+                </h2>
+                
+                <div class="space-y-3">
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-map-marker-alt text-musgo mt-1 w-4"></i>
+                        <div>
+                            <p class="text-xs text-gray-500">Localização</p>
+                            <p id="cidade" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-home text-musgo mt-1 w-4"></i>
+                        <div>
+                            <p class="text-xs text-gray-500">Endereço</p>
+                            <p id="endereco" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-calendar-alt text-musgo mt-1 w-4"></i>
+                        <div>
+                            <p class="text-xs text-gray-500">Data de Instalação</p>
+                            <p id="data" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-tag text-musgo mt-1 w-4"></i>
+                        <div>
+                            <p class="text-xs text-gray-500">Tipo de Projeto</p>
+                            <p id="tipoProjeto" class="text-sm font-medium text-gray-800">-</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-dollar-sign text-musgo mt-1 w-4"></i>
+                        <div>
+                            <p class="text-xs text-gray-500">Valor Estimado</p>
+                            <p id="valor" class="text-base font-bold text-musgo">-</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-2">
+                        <i class="fas fa-sticky-note text-musgo mt-1 w-4"></i>
+                        <div>
+                            <p class="text-xs text-gray-500">Observações</p>
+                            <p id="obs" class="text-sm text-gray-700 bg-white p-2 rounded border border-gray-200">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão Aceitar -->
+            <button id="btnAceitar" 
+                    class="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                <i class="fas fa-check-circle mr-2"></i>
+                Aceitar Serviço
+            </button>
+
+            <p class="text-xs text-gray-400 text-center mt-4 leading-relaxed">
+                <i class="fas fa-info-circle mr-1"></i>
+                Ao aceitar, você assume o compromisso de realizar o serviço na data agendada.<br>
+                Se não aceitar agora, o convite expirará em 20 minutos.
+            </p>
+        </div>
+
+        <!-- Mensagem de erro -->
+        <div id="erro" class="hidden p-8 text-center">
+            <div class="bg-red-50 rounded-xl p-6 border border-red-200">
+                <i class="fas fa-exclamation-circle text-red-500 text-5xl mb-3"></i>
+                <h3 class="text-xl font-bold text-red-700 mb-2">Ops!</h3>
+                <p id="erroMsg" class="text-red-600 mb-4"></p>
+                <a href="/" class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg transition">
+                    Voltar para o início
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-6 py-3 border-t border-gray-200 text-center">
+            <p class="text-xs text-gray-500">
+                <i class="fas fa-shield-alt text-musgo mr-1"></i>
+                Convite válido por 20 minutos • NF Móveis Planejados
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000' 
+            : 'https://testenf-production.up.railway.app';
+
+        const params = new URLSearchParams(window.location.search);
+        const conviteId = params.get('id');
+
+        // Elementos DOM
+        const carregando = document.getElementById('carregando');
+        const dadosDiv = document.getElementById('dados');
+        const erroDiv = document.getElementById('erro');
+        const erroMsg = document.getElementById('erroMsg');
+        const btnAceitar = document.getElementById('btnAceitar');
+        const timerEl = document.getElementById('timer');
+        const timerStatus = document.getElementById('timerStatus');
+
+        // Campos de dados
+        const cidadeEl = document.getElementById('cidade');
+        const enderecoEl = document.getElementById('endereco');
+        const dataEl = document.getElementById('data');
+        const tipoProjetoEl = document.getElementById('tipoProjeto');
+        const valorEl = document.getElementById('valor');
+        const obsEl = document.getElementById('obs');
+
+        if (!conviteId) {
+            mostrarErro('Link inválido. ID do convite não encontrado.');
+        } else {
+            carregarConvite();
+        }
+
+        async function carregarConvite() {
+            try {
+                const res = await fetch(`${API_URL}/api/convites/${conviteId}/detalhes`);
+                const data = await res.json();
+
+                carregando.classList.add('hidden');
+
+                if (!res.ok) {
+                    mostrarErro(data.erro || 'Erro ao carregar convite');
+                    return;
+                }
+
+                // Preencher dados
+                cidadeEl.textContent = data.montagem.cidade || 'Não informado';
+                enderecoEl.textContent = data.montagem.endereco || 'Não informado';
+                dataEl.textContent = data.montagem.data_instalacao 
+                    ? new Date(data.montagem.data_instalacao).toLocaleDateString('pt-BR') 
+                    : 'Não informado';
+                tipoProjetoEl.textContent = traduzirTipoProjeto(data.tipo_projeto);
+                valorEl.textContent = formatarValor(data.valor_estimado);
+                obsEl.textContent = data.montagem.observacoes || 'Nenhuma observação';
+
+                // Iniciar timer
+                iniciarTimer(data.tempo_restante_minutos);
+
+                dadosDiv.classList.remove('hidden');
+
+            } catch (err) {
+                console.error('Erro ao carregar:', err);
+                mostrarErro('Erro de conexão com o servidor');
+            }
+        }
+
+        function iniciarTimer(minutos) {
+            let segundos = minutos * 60;
+            
+            const interval = setInterval(() => {
+                if (segundos <= 0) {
+                    clearInterval(interval);
+                    timerEl.textContent = '00:00';
+                    timerStatus.textContent = '⏰ Convite expirado!';
+                    timerStatus.classList.add('text-red-600');
+                    timerEl.classList.add('timer-urgente');
+                    btnAceitar.disabled = true;
+                    btnAceitar.innerHTML = '<i class="fas fa-clock mr-2"></i>Convite Expirado';
+                    return;
+                }
+
+                segundos--;
+                const mins = Math.floor(segundos / 60);
+                const secs = segundos % 60;
+                timerEl.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                // Alerta visual quando faltar menos de 2 minutos
+                if (segundos < 120) {
+                    timerEl.classList.add('timer-urgente', 'text-red-600');
+                    timerStatus.textContent = '⚠️ Últimos minutos! Aceite agora.';
+                }
+            }, 1000);
+
+            // Configurar botão aceitar
+            btnAceitar.addEventListener('click', async () => {
+                try {
+                    btnAceitar.disabled = true;
+                    btnAceitar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...';
+
+                    const res = await fetch(`${API_URL}/api/convites/${conviteId}/aceitar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        clearInterval(interval);
+                        timerEl.textContent = 'ACEITO!';
+                        timerStatus.textContent = '✅ Convite aceito com sucesso!';
+                        timerStatus.classList.remove('text-red-600');
+                        timerStatus.classList.add('text-green-600');
+                        btnAceitar.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Aceito com Sucesso!';
+                        btnAceitar.classList.remove('bg-gradient-to-r', 'from-green-600', 'to-green-500', 'hover:from-green-700', 'hover:to-green-600');
+                        btnAceitar.classList.add('bg-green-100', 'text-green-800', 'cursor-default');
+                        btnAceitar.disabled = true;
+                        
+                        // Mostrar mensagem adicional
+                        alert('✅ Parabéns! Você aceitou o serviço. Em breve entraremos em contato pelo WhatsApp.');
+                    } else {
+                        btnAceitar.disabled = false;
+                        btnAceitar.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Aceitar Serviço';
+                        alert('Erro: ' + (data.erro || 'Não foi possível aceitar o convite'));
+                    }
+                } catch (err) {
+                    console.error('Erro ao aceitar:', err);
+                    btnAceitar.disabled = false;
+                    btnAceitar.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Aceitar Serviço';
+                    alert('Erro de conexão ao aceitar convite');
+                }
+            });
+        }
+
+        function traduzirTipoProjeto(tipo) {
+            const tipos = {
+                'simples': 'Simples',
+                'medio': 'Médio',
+                'complexo': 'Complexo',
+                'luxo': 'Super Luxo'
+            };
+            return tipos[tipo] || tipo || 'Não informado';
+        }
+
+        function formatarValor(valor) {
+            if (!valor) return 'R$ 0,00';
+            if (typeof valor === 'string') return valor;
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function mostrarErro(mensagem) {
+            carregando.classList.add('hidden');
+            erroDiv.classList.remove('hidden');
+            erroMsg.textContent = mensagem;
+        }
+    </script>
+</body>
+</html>
