@@ -403,36 +403,73 @@ function renderOrdens(ordens) {
     }
 
     container.innerHTML = ordens.map(o => {
-        // Cores para os selos de status
-        let statusClass = 'bg-blue-100 text-blue-700'; // Agendada
+        // Formatação das datas
+        const dataCriacao = new Date(o.criado_em).toLocaleDateString('pt-BR');
+        const dataAgendada = o.data_agendamento ? new Date(o.data_agendamento).toLocaleDateString('pt-BR') : 'Não informada';
+        
+        // Cores de status
+        let statusClass = 'bg-blue-100 text-blue-700'; 
         if (o.status === 'pendente') statusClass = 'bg-amber-100 text-amber-700';
         if (o.status === 'concluída') statusClass = 'bg-green-100 text-green-700';
 
+        // Limpeza do telefone para o link do WhatsApp
+        const zapLink = o.montador_telefone ? `https://wa.me/55${o.montador_telefone.replace(/\D/g, '')}` : '#';
+
         return `
-        <div class="bg-white border-2 ${o.status === 'concluída' ? 'border-green-100 bg-green-50/10' : 'border-gray-100'} rounded-2xl p-5 mb-4 shadow-sm transition-all hover:shadow-md">
-            <div class="flex justify-between items-start mb-4">
+        <div class="bg-white border-2 ${o.status === 'concluída' ? 'border-green-100 bg-green-50/10' : 'border-gray-100'} rounded-2xl p-6 mb-4 shadow-sm transition-all hover:shadow-md">
+            <div class="flex justify-between items-start mb-6">
                 <div>
-                    <h3 class="font-black text-petroleo">OS #${o.numero_os || o.id.toString().slice(0,8)}</h3>
-                    <p class="text-[10px] text-gray-400 uppercase font-bold mt-1">Criada em: ${new Date(o.criado_em).toLocaleDateString('pt-BR')}</p>
+                    <h3 class="font-black text-petroleo text-lg">OS #${o.numero_os || o.id.toString().slice(0,8)}</h3>
+                    <p class="text-[10px] text-gray-400 uppercase font-bold mt-1">Registrada em: ${dataCriacao}</p>
                 </div>
                 <span class="px-3 py-1 ${statusClass} rounded-full text-[10px] font-black uppercase tracking-wider">
                     ${o.status}
                 </span>
             </div>
             
-            <div class="space-y-2 text-sm text-gray-600 mb-5">
-                <p><b class="text-gray-800"><i class="fas fa-user-cog mr-2"></i>Montador:</b> ${o.montador_nome || '<span class="text-amber-600 italic">Nenhum (Pendente)</span>'}</p>
-                <p><b class="text-gray-800"><i class="fas fa-map-marker-alt mr-2"></i>Local:</b> ${o.cidade} - ${o.endereco_instalacao}</p>
-                <p class="font-bold text-musgo text-base">Valor: R$ ${parseFloat(o.valor).toFixed(2)}</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="space-y-3 border-r border-gray-100 pr-4">
+                    <p class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-hammer text-musgo w-5"></i>
+                        <span><b>Projeto:</b> ${o.tipo_projeto.toUpperCase()}</span>
+                    </p>
+                    <p class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-calendar-check text-musgo w-5"></i>
+                        <span><b>Data Agendada:</b> ${dataAgendada}</span>
+                    </p>
+                    <p class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-map-marker-alt text-musgo w-5"></i>
+                        <span><b>Local:</b> ${o.cidade} - ${o.endereco_instalacao}</span>
+                    </p>
+                </div>
+
+                <div class="space-y-3">
+                    <p class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-user-hard-hat text-musgo w-5"></i>
+                        <span><b>Montador:</b> ${o.montador_nome || '<span class="text-amber-600 italic">Pendente</span>'}</span>
+                    </p>
+                    ${o.montador_telefone ? `
+                        <p class="flex items-center gap-2 text-sm text-gray-600">
+                            <i class="fab fa-whatsapp text-green-500 w-5 text-lg"></i>
+                            <a href="${zapLink}" target="_blank" class="text-blue-600 font-bold hover:underline">
+                                ${o.montador_telefone}
+                            </a>
+                        </p>
+                    ` : ''}
+                    <div class="pt-2">
+                         <span class="text-[10px] text-gray-400 font-bold uppercase block">Valor do Pagamento</span>
+                         <span class="text-xl font-black text-musgo">R$ ${parseFloat(o.valor).toFixed(2)}</span>
+                    </div>
+                </div>
             </div>
 
             ${o.status !== 'concluída' ? `
-                <button onclick="marcarComoConcluido('${o.id}')" class="w-full bg-musgo hover:bg-petroleo text-white py-3 rounded-xl font-bold text-xs transition-all shadow-md flex items-center justify-center gap-2">
-                    <i class="fas fa-check-double"></i> CONCLUIR E ARQUIVAR MANUALMENTE
+                <button onclick="marcarComoConcluido('${o.id}')" class="w-full bg-musgo hover:bg-petroleo text-white py-4 rounded-xl font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2">
+                    <i class="fas fa-check-double"></i> FINALIZAR E ARQUIVAR TRABALHO
                 </button>
             ` : `
                 <div class="w-full bg-gray-50 text-gray-400 py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border border-dashed border-gray-200">
-                    <i class="fas fa-archive"></i> SERVIÇO FINALIZADO
+                    <i class="fas fa-archive"></i> SERVIÇO CONCLUÍDO E ARQUIVADO NO HISTÓRICO
                 </div>
             `}
         </div>`;
