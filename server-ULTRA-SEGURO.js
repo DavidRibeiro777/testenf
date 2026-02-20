@@ -466,12 +466,23 @@ app.post('/api/admin/aprovar-montador', autenticar, async (req, res) => {
 });
 
 app.get('/api/admin/ordens', autenticar, async (req, res) => {
-  try {
-    const result = await pool.query('SELECT o.*, m.nome as montador_nome FROM ordens_servico o LEFT JOIN montadores m ON m.id = o.montador_id ORDER BY o.criado_em DESC');
-    res.json(result.rows);
-  } catch (err) { res.status(500).json({ erro: 'Erro ao listar ordens' }); }
+  try {
+    // Adicionamos m.telefone na consulta SQL
+    const result = await pool.query(`
+        SELECT 
+            o.*, 
+            m.nome as montador_nome, 
+            m.telefone as montador_telefone 
+        FROM ordens_servico o 
+        LEFT JOIN montadores m ON m.id = o.montador_id 
+        ORDER BY o.criado_em DESC
+    `);
+    res.json(result.rows);
+  } catch (err) { 
+    console.error('Erro ao listar ordens:', err.message);
+    res.status(500).json({ erro: 'Erro ao listar ordens' }); 
+  }
 });
-
 // ROTA ÚNICA E DEFINITIVA PARA CONCLUIR OS
 // ROTA ÚNICA E ROBUSTA PARA CONCLUIR OS
 app.post('/api/admin/concluir-os', autenticar, async (req, res) => {
