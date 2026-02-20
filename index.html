@@ -855,13 +855,10 @@
 
   function toggleEspec(element) {
     if (window.event) window.event.preventDefault();
-    
     if (!element) return;
-    
     element.classList.toggle('sel');
     element.classList.toggle('border-musgo');
     element.classList.toggle('bg-musgo/5');
-    
     const check = element.querySelector('.espec-check');
     if (check) {
       if (element.classList.contains('sel')) {
@@ -872,12 +869,10 @@
         check.textContent = '';
       }
     }
-    
     const checkbox = element.querySelector('input[type="checkbox"]');
     if (checkbox) {
       checkbox.checked = element.classList.contains('sel');
     }
-    
     return false;
   }
 
@@ -898,7 +893,6 @@
     for (let i = 1; i <= 4; i++) {
       const step = document.getElementById('step-' + i);
       if (!step) continue;
-      
       const circle = step.querySelector('.w-12');
       const title = step.querySelector('.font-medium');
       const subtitle = step.querySelector('.text-xs');
@@ -948,7 +942,6 @@
 
   function validarEtapa(n) {
     let ok = true;
-
     if (n === 1) {
       const campos = ['nome','cpf','nascimento','telefone','email','endereco','cidade'];
       campos.forEach(id => {
@@ -965,12 +958,10 @@
         }
       });
     }
-
     if (n === 2) {
       const exp = document.getElementById('anos_exp');
       const fer = document.getElementById('ferramentas');
       const dis = document.getElementById('disponibilidade');
-      
       [exp, fer, dis].forEach(el => {
         if (!el?.value?.trim()) { 
           if (el) el.classList.add('border-red-500'); 
@@ -979,14 +970,12 @@
           if (el) el.classList.remove('border-red-500');
         }
       });
-      
       const espec = document.querySelectorAll('.espec-opt.sel');
       if (espec.length === 0) {
         alert('Selecione ao menos uma especialidade.');
         ok = false;
       }
     }
-
     if (n === 3) {
       const obrigatorios = ['arq-rg','arq-cpf','arq-comprovante','arq-foto'];
       obrigatorios.forEach(id => {
@@ -1002,7 +991,6 @@
       });
       if (!ok) alert('Anexe os documentos obrigatórios (marcados com *).');
     }
-
     return ok;
   }
 
@@ -1015,7 +1003,16 @@
     showEtapa(n - 1);
   }
 
-  // ─── SUBMIT DO FORMULÁRIO ─────────────────────────────────
+  // ─── CONVERSOR DE ARQUIVO PARA TEXTO (BASE64) ─────────────
+  const toBase64 = file => new Promise((resolve, reject) => {
+      if (!file) return resolve(null);
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+  });
+
+  // ─── SUBMIT DO FORMULÁRIO (ATUALIZADO) ─────────────────────
   document.getElementById('formCadastro')?.addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -1024,108 +1021,89 @@
     const todosAceitos = checks.every(id => document.getElementById(id)?.checked);
     if (!todosAceitos) {
       const erroFinal = document.getElementById('erroFinal');
-      if (erroFinal) erroFinal.style.display = 'block';
+      if (erroFinal) erroFinal.classList.remove('hidden');
       return;
     }
 
     const btn = document.getElementById('btnEnviar');
     if (btn) {
       btn.disabled = true;
-      btn.textContent = 'Enviando...';
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Enviando Documentos...';
     }
 
-    // Coletar dados
-    const especialidades = [...document.querySelectorAll('.espec-opt.sel')]
-        .map(e => e.querySelector('input')?.value)
-        .filter(v => v);
+ try {
+        // 1. Capturar e converter os 4 arquivos
+        const fotoPerfil  = await toBase64(document.getElementById('arq-foto').files[0]);
+        const docFrente   = await toBase64(document.getElementById('arq-rg').files[0]);
+        const docVerso    = await toBase64(document.getElementById('arq-cpf').files[0]);
+        const comprovante = await toBase64(document.getElementById('arq-comprovante').files[0]);
 
-    const nivel = document.querySelector('input[name="nivel"]:checked')?.value;
+        // 2. Coletar especialidades e nível (mesma lógica)
+        const especialidades = [...document.querySelectorAll('.espec-opt.sel')]
+            .map(e => e.querySelector('input')?.value).filter(v => v);
+        const nivel = document.querySelector('input[name="nivel"]:checked')?.value;
 
-    const payload = {
-        nome: document.getElementById('nome')?.value || '',
-        cpf: document.getElementById('cpf')?.value || '',
-        nascimento: document.getElementById('nascimento')?.value || '',
-        rg: document.getElementById('rg')?.value || '',
-        telefone: document.getElementById('telefone')?.value || '',
-        email: document.getElementById('email')?.value || '',
-        cep: document.getElementById('cep')?.value || '',
-        endereco: document.getElementById('endereco')?.value || '',
-        cidade: document.getElementById('cidade')?.value || '',
-        estado: document.getElementById('estado')?.value || 'GO',
-        origem: document.getElementById('origem')?.value || '',
-        nivel_experiencia: nivel || '',
-        anos_exp: document.getElementById('anos_exp')?.value || '',
-        cnpj_status: document.getElementById('cnpj_status')?.value || 'nao',
-        cnpj: document.getElementById('cnpj')?.value || '',
-        especialidades: especialidades,
-        ferramentas: document.getElementById('ferramentas')?.value || '',
-        referencias: document.getElementById('referencias')?.value || '',
-        disponibilidade: document.getElementById('disponibilidade')?.value || '',
-        latitude: userLat,
-        longitude: userLon
-    };
+        // 3. Payload com 4 imagens
+        const payload = {
+            nome: document.getElementById('nome')?.value || '',
+            cpf: document.getElementById('cpf')?.value || '',
+            nascimento: document.getElementById('nascimento')?.value || '',
+            telefone: document.getElementById('telefone')?.value || '',
+            email: document.getElementById('email')?.value || '',
+            cidade: document.getElementById('cidade')?.value || '',
+            estado: document.getElementById('estado')?.value || 'GO',
+            anos_exp: document.getElementById('anos_exp')?.value || '',
+            especialidades: especialidades,
+            latitude: userLat,
+            longitude: userLon,
+            // DOCUMENTOS
+            foto_perfil: fotoPerfil,
+            doc_frente: docFrente,
+            doc_verso: docVerso,
+            comprovante_residencia: comprovante // O 4º arquivo aqui!
+        };
 
-    console.log('📦 Enviando dados:', payload);
+        console.log('📦 Enviando dados e arquivos...');
 
-    try {
-      // ✅ CORREÇÃO: Usando API_URL em vez de localhost fixo
-      const response = await fetch(`${API_URL}/api/parceiros`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+        const response = await fetch(`${API_URL}/api/parceiros`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-      const data = await response.json();
-      console.log('📦 Resposta do servidor:', data);
+        const data = await response.json();
 
-      if (response.ok) {
-        // Sucesso
-        setTimeout(() => {
-          const form = document.getElementById('formCadastro');
-          const stepper = document.querySelector('.stepper');
-          const sucesso = document.getElementById('sucesso');
-          const cadastro = document.getElementById('cadastro');
-          
-          if (form) form.style.display = 'none';
-          if (stepper) stepper.style.display = 'none';
-          if (sucesso) sucesso.style.display = 'block';
-          if (cadastro) {
-            window.scrollTo({
-              top: cadastro.offsetTop,
-              behavior: 'smooth'
-            });
-          }
-        }, 1500);
-      } else {
-        alert('Erro no cadastro: ' + (data.erro || 'Erro desconhecido'));
+        if (response.ok) {
+            // Sucesso
+            document.getElementById('formCadastro').style.display = 'none';
+            const stepper = document.querySelector('.flex.justify-center.items-center.mb-16');
+            if (stepper) stepper.style.display = 'none';
+            document.getElementById('sucesso').classList.remove('hidden');
+            const cadastro = document.getElementById('cadastro');
+            if (cadastro) window.scrollTo({ top: cadastro.offsetTop, behavior: 'smooth' });
+        } else {
+            alert('Erro no cadastro: ' + (data.erro || 'Erro desconhecido'));
+            if (btn) {
+              btn.disabled = false;
+              btn.textContent = '✓ Finalizar Cadastro';
+            }
+        }
+    } catch (error) {
+        console.error('❌ Erro na requisição:', error);
+        alert('Erro ao conectar com o servidor. O arquivo pode ser muito grande ou o servidor está offline.');
         if (btn) {
           btn.disabled = false;
           btn.textContent = '✓ Finalizar Cadastro';
         }
-      }
-    } catch (error) {
-      console.error('❌ Erro na requisição:', error);
-      alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = '✓ Finalizar Cadastro';
-      }
     }
   });
 
   // ─── INICIALIZAÇÃO ────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function() {
     updateStepper(1);
-    
-    // Adicionar listeners para os botões de navegação (se existirem)
-    document.getElementById('btn-proximo-1')?.addEventListener('click', () => avancar(1));
-    document.getElementById('btn-voltar-2')?.addEventListener('click', () => voltar(2));
-    document.getElementById('btn-proximo-2')?.addEventListener('click', () => avancar(2));
-    document.getElementById('btn-voltar-3')?.addEventListener('click', () => voltar(3));
-    document.getElementById('btn-proximo-3')?.addEventListener('click', () => avancar(3));
-    document.getElementById('btn-voltar-4')?.addEventListener('click', () => voltar(4));
   });
 </script>
 </body>
 
 </html>
+
