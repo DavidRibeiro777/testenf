@@ -262,25 +262,42 @@ app.post('/api/admin/criar-os', autenticar, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const { tipo_projeto, valor, endereco_instalacao, cidade, estado, data_agendamento, observacoes, raio_busca = 100 } = req.body;
+    const { 
+      cliente_nome,           // NOVO CAMPO
+      cliente_contato,        // NOVO CAMPO
+      tipo_projeto, 
+      valor, 
+      endereco_instalacao, 
+      cidade, 
+      estado, 
+      data_agendamento, 
+      observacoes, 
+      raio_busca = 100 
+    } = req.body;
     
-    // 1. GERAÇÃO DE PROTOCOLO ÚNICO (Data + Hora + Aleatório)
-    // Evita o erro 23505 (Unique Constraint) de forma definitiva
+    // VALIDAÇÃO DOS NOVOS CAMPOS
+    if (!cliente_nome || cliente_nome.trim() === '') {
+      throw new Error('Nome do cliente é obrigatório');
+    }
+    if (!cliente_contato || cliente_contato.trim() === '') {
+      throw new Error('Contato do cliente é obrigatório');
+    }
+    
+    // 1. GERAÇÃO DE PROTOCOLO ÚNICO
     const agora = new Date();
     const timestamp = agora.getTime().toString().slice(-6); 
     const random = Math.floor(10 + Math.random() * 89);
     const protocol = `${agora.getFullYear()}-${timestamp}${random}`;
 
-    // 2. INSERIR A ORDEM DE SERVIÇO (Status: 'pendente')
-    // Nota: O status 'pendente' é necessário para o sistema de "corrida" (quem aceita primeiro)
+    // 2. INSERIR A ORDEM DE SERVIÇO COM OS NOVOS CAMPOS
     const insertOS = await client.query(
       `INSERT INTO ordens_servico 
-       (numero_os, tipo_projeto, valor, endereco_instalacao, cidade, estado, data_agendamento, observacoes, criado_por, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'pendente') RETURNING *`,
-      [protocol, tipo_projeto, valor, endereco_instalacao, cidade, estado, data_agendamento, observacoes, req.usuario.id]
+       (numero_os, cliente_nome, cliente_contato, tipo_projeto, valor, endereco_instalacao, cidade, estado, data_agendamento, observacoes, criado_por, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'pendente') RETURNING *`,
+      [protocol, cliente_nome, cliente_contato, tipo_projeto, valor, endereco_instalacao, cidade, estado, data_agendamento, observacoes, req.usuario.id]
     );
     const os = insertOS.rows[0];
-    console.log(`✅ OS Criada: ${os.numero_os} (ID: ${os.id})`);
+    console.log(`✅ OS Criada: ${os.numero_os} (ID: ${os.id}) para cliente: ${cliente_nome}`);
 
     // 3. BUSCA GPS VIA NOMINATIM
     const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cidade + ', ' + estado + ', Brasil')}&limit=1`;
@@ -324,7 +341,7 @@ app.post('/api/admin/criar-os', autenticar, async (req, res) => {
       // Limpeza do telefone: Remove tudo que não for número
       const foneLimpo = m.telefone.replace(/\D/g, '');
       
-      // Mensagem personalizada (Negrito e Emojis para o WhatsApp)
+      // Mensagem personalizada (sem dados do cliente por privacidade)
       const zapMsg = `Olá *${m.nome.split(' ')[0]}*! 🔧\nA *NF Móveis* tem um novo serviço em *${cidade}*!\n\n💰 Valor: *R$ ${valor}*\n⚠️ *Você tem 20 minutos para aceitar no link abaixo:*\n${link}`;
       
       convites.push({
@@ -466,19 +483,31 @@ app.post('/api/admin/aprovar-montador', autenticar, async (req, res) => {
 });
 
 app.get('/api/admin/ordens', autenticar, async (req, res) => {
-  try {
-    // Adicionamos m.telefone na consulta SQL
-    const result = await pool.query(`
+  try {
+    const result = await pool.query(`
         SELECT 
-            o.*, 
+            o.id,
+            o.numero_os,
+            o.cliente_nome,           -- NOVO CAMPO
+            o.cliente_contato,         -- NOVO CAMPO
+            o.tipo_projeto,
+            o.valor,
+            o.endereco_instalacao,
+            o.cidade,
+            o.estado,
+            o.data_agendamento,
+            o.observacoes,
+            o.status,
+            o.criado_em,
+            o.montador_id,
             m.nome as montador_nome, 
             m.telefone as montador_telefone 
         FROM ordens_servico o 
         LEFT JOIN montadores m ON m.id = o.montador_id 
         ORDER BY o.criado_em DESC
     `);
-    res.json(result.rows);
-  } catch (err) { 
+    res.json(result.rows);
+  } catch (err) { 
     console.error('Erro ao listar ordens:', err.message);
     res.status(500).json({ erro: 'Erro ao listar ordens' }); 
   }
