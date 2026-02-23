@@ -113,59 +113,97 @@
                     </p>
                 </div>
 
-                <form id="formNovaOS" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-bold text-gray-700">Cidade da Instalação</label>
-                            <input type="text" id="osCidade" placeholder="Ex: Goiânia" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all" required>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-bold text-gray-700">Estado (UF)</label>
-                            <input type="text" id="osEstado" value="GO" maxlength="2" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all uppercase" required>
-                        </div>
-                    </div>
+<form id="formNovaOS" class="space-y-6">
+    <!-- DADOS DO CLIENTE - NOVOS CAMPOS -->
+    <div class="bg-gradient-to-r from-oliva/5 to-musgo/5 p-6 rounded-2xl border-2 border-dashed border-oliva/20 mb-6">
+        <h3 class="text-sm font-bold text-petroleo mb-4 flex items-center gap-2">
+            <i class="fas fa-user text-oliva"></i> Dados do Cliente
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-gray-700">
+                    Nome do Cliente <span class="text-red-500">*</span>
+                </label>
+                <input type="text" 
+                       id="clienteNome" 
+                       name="clienteNome"
+                       placeholder="Ex: João Silva" 
+                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all" 
+                       required>
+            </div>
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-gray-700">
+                    Contato do Cliente <span class="text-red-500">*</span>
+                </label>
+                <input type="tel" 
+                       id="clienteContato" 
+                       name="clienteContato"
+                       placeholder="(11) 99999-9999" 
+                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all telefone-mask" 
+                       required>
+                <p class="text-[10px] text-gray-400 mt-1">WhatsApp para contato</p>
+            </div>
+        </div>
+    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-bold text-gray-700">Tipo de Projeto</label>
-                            <select id="osTipo" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all bg-white" required>
-                                <option value="simples">Simples (Cozinha/Quarto)</option>
-                                <option value="medio">Médio (Apartamento Completo)</option>
-                                <option value="complexo">Complexo (Casa/Escritório)</option>
-                                <option value="luxo">Super Luxo / Alto Padrão</option>
-                            </select>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-bold text-gray-700">Valor Pago ao Montador (R$)</label>
-                            <input type="number" id="osValor" step="0.01" placeholder="0,00" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all font-mono" required>
-                        </div>
-                    </div>
+    <!-- LOCAL DA INSTALAÇÃO -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+            <label class="block text-sm font-bold text-gray-700">Cidade da Instalação <span class="text-red-500">*</span></label>
+            <input type="text" id="osCidade" placeholder="Ex: Goiânia" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all" required>
+        </div>
+        <div class="space-y-2">
+            <label class="block text-sm font-bold text-gray-700">Estado (UF) <span class="text-red-500">*</span></label>
+            <input type="text" id="osEstado" value="GO" maxlength="2" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all uppercase" required>
+        </div>
+    </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-sm font-bold text-gray-700">Endereço Completo da Obra</label>
-                        <input type="text" id="osEndereco" placeholder="Rua, Número, Bairro..." class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all" required>
-                    </div>
+    <!-- DETALHES DO PROJETO -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+            <label class="block text-sm font-bold text-gray-700">Tipo de Projeto <span class="text-red-500">*</span></label>
+            <select id="osTipo" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all bg-white" required>
+                <option value="simples">Simples (Cozinha/Quarto)</option>
+                <option value="medio">Médio (Apartamento Completo)</option>
+                <option value="complexo">Complexo (Casa/Escritório)</option>
+                <option value="luxo">Super Luxo / Alto Padrão</option>
+            </select>
+        </div>
+        <div class="space-y-2">
+            <label class="block text-sm font-bold text-gray-700">Valor Pago ao Montador (R$) <span class="text-red-500">*</span></label>
+            <input type="number" id="osValor" step="0.01" placeholder="0,00" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all font-mono" required>
+        </div>
+    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-bold text-gray-700">Data Agendada</label>
-                            <input type="date" id="osData" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all" required>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="block text-sm font-bold text-gray-700">Raio de Busca de Montadores (km)</label>
-                            <input type="number" id="raioBusca" value="100" min="5" max="500" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all">
-                        </div>
-                    </div>
+    <!-- ENDEREÇO -->
+    <div class="space-y-2">
+        <label class="block text-sm font-bold text-gray-700">Endereço Completo da Obra <span class="text-red-500">*</span></label>
+        <input type="text" id="osEndereco" placeholder="Rua, Número, Bairro..." class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all" required>
+    </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-sm font-bold text-gray-700">Observações Internas</label>
-                        <textarea id="osObs" rows="3" placeholder="Informações adicionais para o montador..." class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all resize-none"></textarea>
-                    </div>
+    <!-- DATA E RAIO -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+            <label class="block text-sm font-bold text-gray-700">Data Agendada <span class="text-red-500">*</span></label>
+            <input type="date" id="osData" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all" required>
+        </div>
+        <div class="space-y-2">
+            <label class="block text-sm font-bold text-gray-700">Raio de Busca de Montadores (km)</label>
+            <input type="number" id="raioBusca" value="100" min="5" max="500" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all">
+        </div>
+    </div>
 
-                    <button type="submit" id="btnSalvarOS" class="w-full bg-musgo hover:bg-petroleo text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3">
-                        <i class="fas fa-paper-plane"></i> Criar OS e Gerar Convites
-                    </button>
-                </form>
+    <!-- OBSERVAÇÕES -->
+    <div class="space-y-2">
+        <label class="block text-sm font-bold text-gray-700">Observações Internas</label>
+        <textarea id="osObs" rows="3" placeholder="Informações adicionais para o montador..." class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-musgo outline-none transition-all resize-none"></textarea>
+    </div>
+
+    <button type="submit" id="btnSalvarOS" class="w-full bg-musgo hover:bg-petroleo text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3">
+        <i class="fas fa-paper-plane"></i> Criar OS e Gerar Convites
+    </button>
+</form>
+
 
                 <div id="resultadoConvites" class="hidden mt-10 p-6 bg-green-50 border-2 border-green-200 rounded-2xl animate-fade-in">
                     <div class="flex items-center gap-3 mb-4">
@@ -394,7 +432,6 @@ function renderMontadores(montadores, status) {
              novaAba.location.href = urlOuBase64;
         }
     }
-
 function renderOrdens(ordens) {
     const container = document.getElementById('ordens-list');
     if (!ordens.length) { 
@@ -414,6 +451,7 @@ function renderOrdens(ordens) {
 
         // Limpeza do telefone para o link do WhatsApp
         const zapLink = o.montador_telefone ? `https://wa.me/55${o.montador_telefone.replace(/\D/g, '')}` : '#';
+        const clienteZapLink = o.cliente_contato ? `https://wa.me/55${o.cliente_contato.replace(/\D/g, '')}` : '#';
 
         return `
         <div class="bg-white border-2 ${o.status === 'concluída' ? 'border-green-100 bg-green-50/10' : 'border-gray-100'} rounded-2xl p-6 mb-4 shadow-sm transition-all hover:shadow-md">
@@ -427,11 +465,33 @@ function renderOrdens(ordens) {
                 </span>
             </div>
             
+            <!-- DADOS DO CLIENTE -->
+            <div class="bg-gradient-to-r from-oliva/5 to-musgo/5 p-4 rounded-xl border border-oliva/10 mb-6">
+                <h4 class="text-xs font-bold text-petroleo mb-3 flex items-center gap-2">
+                    <i class="fas fa-user-circle text-oliva"></i> DADOS DO CLIENTE
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <p class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-user text-musgo w-5"></i>
+                        <span><b>Nome:</b> ${o.cliente_nome || '<span class="text-amber-600 italic">Não informado</span>'}</span>
+                    </p>
+                    <p class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fab fa-whatsapp text-green-500 w-5 text-lg"></i>
+                        ${o.cliente_contato ? 
+                            `<a href="${clienteZapLink}" target="_blank" class="text-blue-600 font-bold hover:underline">
+                                ${o.cliente_contato}
+                            </a>` : 
+                            '<span class="text-amber-600 italic">Não informado</span>'
+                        }
+                    </p>
+                </div>
+            </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div class="space-y-3 border-r border-gray-100 pr-4">
                     <p class="flex items-center gap-2 text-sm text-gray-600">
                         <i class="fas fa-hammer text-musgo w-5"></i>
-                        <span><b>Projeto:</b> ${o.tipo_projeto.toUpperCase()}</span>
+                        <span><b>Projeto:</b> ${o.tipo_projeto ? o.tipo_projeto.toUpperCase() : 'Não especificado'}</span>
                     </p>
                     <p class="flex items-center gap-2 text-sm text-gray-600">
                         <i class="fas fa-calendar-check text-musgo w-5"></i>
@@ -439,7 +499,7 @@ function renderOrdens(ordens) {
                     </p>
                     <p class="flex items-center gap-2 text-sm text-gray-600">
                         <i class="fas fa-map-marker-alt text-musgo w-5"></i>
-                        <span><b>Local:</b> ${o.cidade} - ${o.endereco_instalacao}</span>
+                        <span><b>Local:</b> ${o.cidade || ''} - ${o.endereco_instalacao || ''}</span>
                     </p>
                 </div>
 
@@ -458,10 +518,16 @@ function renderOrdens(ordens) {
                     ` : ''}
                     <div class="pt-2">
                          <span class="text-[10px] text-gray-400 font-bold uppercase block">Valor do Pagamento</span>
-                         <span class="text-xl font-black text-musgo">R$ ${parseFloat(o.valor).toFixed(2)}</span>
+                         <span class="text-xl font-black text-musgo">R$ ${o.valor ? parseFloat(o.valor).toFixed(2) : '0,00'}</span>
                     </div>
                 </div>
             </div>
+
+            ${o.observacoes ? `
+                <div class="mb-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                    <p class="text-xs text-gray-500 italic">📝 ${o.observacoes}</p>
+                </div>
+            ` : ''}
 
             ${o.status !== 'concluída' ? `
                 <button onclick="marcarComoConcluido('${o.id}')" class="w-full bg-musgo hover:bg-petroleo text-white py-4 rounded-xl font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2">
@@ -475,44 +541,151 @@ function renderOrdens(ordens) {
         </div>`;
     }).join('');
 }
-    document.getElementById('formNovaOS').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btnSalvarOS');
-        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...';
-        
-        const osData = {
-            tipo_projeto: document.getElementById('osTipo').value,
-            valor: parseFloat(document.getElementById('osValor').value),
-            endereco_instalacao: document.getElementById('osEndereco').value,
-            cidade: document.getElementById('osCidade').value,
-            estado: document.getElementById('osEstado').value,
-            data_agendamento: document.getElementById('osData').value,
-            observacoes: document.getElementById('osObs').value,
-            raio_busca: parseInt(document.getElementById('raioBusca').value) || 100
-        };
+document.getElementById('formNovaOS').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // PEGAR OS VALORES DOS CAMPOS
+    const clienteNome = document.getElementById('clienteNome')?.value;
+    const clienteContato = document.getElementById('clienteContato')?.value;
+    const tipo_projeto = document.getElementById('osTipo')?.value;
+    const valor = document.getElementById('osValor')?.value;
+    const endereco_instalacao = document.getElementById('osEndereco')?.value;
+    const cidade = document.getElementById('osCidade')?.value;
+    const estado = document.getElementById('osEstado')?.value;
+    const data_agendamento = document.getElementById('osData')?.value;
+    const observacoes = document.getElementById('osObs')?.value;
+    const raio_busca = document.getElementById('raioBusca')?.value || 100;
 
-        try {
-            const res = await fetch(`${API_URL}/api/admin/criar-os`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(osData)
-            });
-            const data = await res.json();
-            if (res.ok) {
-                e.target.reset();
-                document.getElementById('resultadoConvites').classList.remove('hidden');
-                document.getElementById('resultadoMensagem').innerHTML = `OS #${data.os.numero_os} Criada!`;
-                document.getElementById('linksConvites').innerHTML = data.convites.map(c => `
-                    <div class="flex items-center justify-between p-4 bg-white rounded-xl border border-green-100 shadow-sm">
-                        <span class="font-bold text-gray-800">${c.montador.nome}</span>
-                        <a href="${c.whatsapp_link}" target="_blank" class="bg-green-500 text-white px-4 py-2 rounded-lg text-xs font-black"><i class="fab fa-whatsapp"></i> ENVIAR ZAP</a>
-                    </div>`).join('');
-                document.getElementById('resultadoConvites').scrollIntoView({ behavior: 'smooth' });
-            } else { alert(data.erro); }
-        } catch (err) { alert('Erro ao criar OS'); }
-        finally { btn.disabled = false; btn.innerHTML = 'Criar OS e Gerar Convites'; }
+    // DEBUG: Verificar se os campos estão sendo pegos
+    console.log('📝 Dados do formulário:', {
+        clienteNome,
+        clienteContato,
+        tipo_projeto,
+        valor,
+        endereco_instalacao,
+        cidade,
+        estado,
+        data_agendamento
     });
 
+    // VALIDAÇÃO
+    if (!clienteNome || clienteNome.trim() === '') {
+        alert('❌ Nome do cliente é obrigatório');
+        return;
+    }
+    if (!clienteContato || clienteContato.trim() === '') {
+        alert('❌ Contato do cliente é obrigatório');
+        return;
+    }
+    if (!tipo_projeto || !valor || !endereco_instalacao || !cidade || !estado || !data_agendamento) {
+        alert('❌ Preencha todos os campos obrigatórios');
+        return;
+    }
+
+    const btn = document.getElementById('btnSalvarOS');
+    const textoOriginal = btn.innerHTML;
+    btn.disabled = true; 
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processando...';
+    
+    // CORPO DA REQUISIÇÃO COM OS NOMES CORRETOS QUE O SERVIDOR ESPERA
+    const osData = {
+        cliente_nome: clienteNome,           // O servidor espera cliente_nome
+        cliente_contato: clienteContato,     // O servidor espera cliente_contato
+        tipo_projeto: tipo_projeto,
+        valor: parseFloat(valor),
+        endereco_instalacao: endereco_instalacao,
+        cidade: cidade,
+        estado: estado,
+        data_agendamento: data_agendamento,
+        observacoes: observacoes || '',
+        raio_busca: parseInt(raio_busca) || 100
+    };
+
+    console.log('📤 Enviando para o servidor:', osData);
+
+    try {
+        const res = await fetch(`${API_URL}/api/admin/criar-os`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify(osData)
+        });
+        
+        const data = await res.json();
+        console.log('📥 Resposta do servidor:', data);
+        
+        if (res.ok) {
+            // Sucesso
+            alert('✅ OS criada com sucesso!');
+            e.target.reset();
+            
+            // Mostrar resultado dos convites
+            if (data.convites && data.convites.length > 0) {
+                document.getElementById('resultadoConvites').classList.remove('hidden');
+                document.getElementById('resultadoMensagem').innerHTML = `OS #${data.os.numero_os} Criada!`;
+                
+                document.getElementById('linksConvites').innerHTML = data.convites.map(c => `
+                    <div class="flex items-center justify-between p-4 bg-white rounded-xl border border-green-100 shadow-sm">
+                        <div>
+                            <span class="font-bold text-gray-800 block">${c.montador.nome}</span>
+                            <span class="text-xs text-gray-500">${c.montador.fone}</span>
+                        </div>
+                        <a href="${c.whatsapp_link}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-black transition-all flex items-center gap-2">
+                            <i class="fab fa-whatsapp"></i> ENVIAR CONVITE
+                        </a>
+                    </div>
+                `).join('');
+                
+                document.getElementById('resultadoConvites').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('OS criada, mas nenhum montador encontrado no raio de busca.');
+            }
+            
+            // Recarregar lista de ordens
+            loadData('ordens');
+            
+        } else { 
+            alert('Erro: ' + (data.erro || 'Erro desconhecido')); 
+        }
+    } catch (err) { 
+        console.error('❌ Erro na requisição:', err);
+        alert('Erro ao criar OS. Verifique o console.'); 
+    } finally { 
+        btn.disabled = false; 
+        btn.innerHTML = textoOriginal; 
+    }
+});
+// Máscara para telefone
+function mascaraTelefone() {
+    const input = document.getElementById('clienteContato');
+    if (input) {
+        input.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.slice(0, 11);
+            
+            if (value.length > 10) {
+                value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+            } else if (value.length > 6) {
+                value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+            } else if (value.length > 2) {
+                value = value.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+            } else if (value.length > 0) {
+                value = value.replace(/^(\d*)/, '($1');
+            }
+            e.target.value = value;
+        });
+    }
+}
+
+// Chamar a função quando a aba for aberta
+document.querySelector('button[onclick="showTab(\'nova-os\')"]')?.addEventListener('click', function() {
+    setTimeout(mascaraTelefone, 100);
+});
+
+// Chamar também no carregamento da página
+document.addEventListener('DOMContentLoaded', mascaraTelefone);
     async function aprovarMontador(id) {
         if (!confirm('Aprovar este profissional?')) return;
         const res = await fetch(`${API_URL}/api/admin/aprovar-montador`, {
